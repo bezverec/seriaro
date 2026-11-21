@@ -1,0 +1,58 @@
+name: Android release draft
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/android-release.yml]
+
+jobs:
+  draft:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Configure Android tools
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358'
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358" >> "$GITHUB_ENV"
+
+      - name: Test and build
+        run: |
+          cargo fmt --manifest-path core-rust/Cargo.toml --all --check
+          cargo test --manifest-path core-rust/Cargo.toml --locked
+          cargo clippy --manifest-path core-rust/Cargo.toml --locked --all-targets -- -D warnings
+          ./android-app/gradlew --no-daemon :app:assembleRelease
+
+      - name: Verify APK and create draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk=android-app/app/build/outputs/apk/release/app-release-unsigned.apk
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          "$tools/zipalign" -c -P 16 4 "$apk"
+          package=$("$tools/aapt" dump badging "$apk" | sed -n '/^package: /p')
+          [[ "$package" == "package: name='org.seriestracker.android' "* ]]
+          version=$(sed -n "s/.* versionName='\([^']*\)'.*/\1/p" <<< "$package")
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          tag="v$version"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "A release already exists for $tag."
+            exit 0
+          fi
+          asset="seriaro-$version-unsigned.apk"
+          cp "$apk" "$asset"
+          sha256sum "$asset" > "$asset.sha256"
+          gh release create "$tag" "$asset" "$asset.sha256" \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft \
+            --title "Seriaro $version" \
+            --notes "Unsigned Android build for review and release signing."
