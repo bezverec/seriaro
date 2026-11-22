@@ -13,7 +13,7 @@ val requestedAbis = providers.environmentVariable("ANDROID_ABIS")
     .map { it.trim() }
 
 android {
-    namespace = "org.seriestracker.android"
+    namespace = "org.seriaro.android"
     compileSdk {
         version = release(37) {
             minorApiLevel = 1
@@ -66,8 +66,8 @@ val prepareRust = tasks.register<PrepareRust>("prepareRust") {
     androidAbis.set(android.defaultConfig.ndk.abiFilters.toList())
     minimumSdk.set(minimumAndroidSdk)
     cargoTarget.set(layout.buildDirectory.dir("rust-target"))
-    kotlinOutput.set(layout.buildDirectory.dir("generated/series-tracker/kotlin"))
-    jniOutput.set(layout.buildDirectory.dir("generated/series-tracker/jniLibs"))
+    kotlinOutput.set(layout.buildDirectory.dir("generated/seriaro/kotlin"))
+    jniOutput.set(layout.buildDirectory.dir("generated/seriaro/jniLibs"))
 }
 
 androidComponents.onVariants { variant ->

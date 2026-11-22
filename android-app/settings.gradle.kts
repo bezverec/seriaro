@@ -18,5 +18,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SeriesTracker"
+rootProject.name = "Seriaro"
 include(":app")

@@ -1,10 +1,10 @@
-package org.seriestracker.android
+package org.seriaro.android
 
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
-import org.seriestracker.core.Language
-import org.seriestracker.core.Tracker
+import org.seriaro.core.Language
+import org.seriaro.core.Tracker
 import java.time.LocalDate
 import java.util.Locale
 

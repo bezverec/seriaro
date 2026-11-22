@@ -7,7 +7,7 @@ checksum=bbaeb2fef8710818cf0e261201dab964c572f92b942812df0c3620d62a529a01
 if [[ ${SERIES_GRADLE:-} ]]; then
     exec "$SERIES_GRADLE" -p "$directory" "$@"
 fi
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/series-tracker"
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/seriaro"
 gradle="$cache/gradle-$version/bin/gradle"
 if [[ ! -x "$gradle" ]]; then
     mkdir -p "$cache"

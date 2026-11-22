@@ -1,4 +1,4 @@
 [bindings.kotlin]
-package_name = "org.seriestracker.core"
+package_name = "org.seriaro.core"
 cdylib_name = "core_rust"
 android = true

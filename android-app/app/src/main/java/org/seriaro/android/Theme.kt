@@ -1,4 +1,4 @@
-package org.seriestracker.android
+package org.seriaro.android
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,8 +8,8 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import org.seriestracker.core.ThemeMode
-import org.seriestracker.core.ThemeSettings
+import org.seriaro.core.ThemeMode
+import org.seriaro.core.ThemeSettings
 
 @Composable
 internal fun useDarkTheme(mode: ThemeMode): Boolean = when (mode) {

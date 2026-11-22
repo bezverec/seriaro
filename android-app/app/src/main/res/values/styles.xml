@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.SeriesTracker" parent="android:style/Theme.Material.NoActionBar">
+    <style name="Theme.Seriaro" parent="android:style/Theme.Material.NoActionBar">
         <item name="android:windowBackground">#18181B</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:fontFamily">sans</item>

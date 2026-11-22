@@ -1,4 +1,4 @@
-package org.seriestracker.android
+package org.seriaro.android
 
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
@@ -27,7 +27,7 @@ internal class SecretStore(context: Context) {
 
     @Synchronized
     fun readWebDav(): WebDavCredentials? {
-        val values = read(webDav, "SeriesTrackerWebDav") ?: return null
+        val values = read(webDav, WEBDAV_KEY_ALIAS) ?: return null
         check(values.size == 3)
         return WebDavCredentials(values[0], values[1], values[2])
     }
@@ -35,7 +35,7 @@ internal class SecretStore(context: Context) {
     @Synchronized
     fun saveWebDav(url: String, username: String, password: String) {
         val secret = password.ifEmpty { readWebDav()?.password.orEmpty() }
-        write(webDav, "SeriesTrackerWebDav", listOf(url.trim(), username, secret))
+        write(webDav, WEBDAV_KEY_ALIAS, listOf(url.trim(), username, secret))
     }
 
     @Synchronized
@@ -108,6 +108,8 @@ internal class SecretStore(context: Context) {
     }
 
     private companion object {
+        // Existing encrypted credentials are tied to this Android Keystore alias.
+        const val WEBDAV_KEY_ALIAS = "SeriesTrackerWebDav"
         const val TRANSFORMATION = "AES/GCM/NoPadding"
     }
 }

@@ -1,4 +1,4 @@
-package org.seriestracker.android
+package org.seriaro.android
 
 import android.app.Application
 import android.graphics.BitmapFactory
@@ -15,16 +15,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.seriestracker.core.CoreException
-import org.seriestracker.core.Dashboard
-import org.seriestracker.core.EpisodeKey
-import org.seriestracker.core.EpisodeState
-import org.seriestracker.core.FollowingFilter
-import org.seriestracker.core.SeriesProgress
-import org.seriestracker.core.Series
-import org.seriestracker.core.Settings
-import org.seriestracker.core.accentUsesDarkText
-import org.seriestracker.core.filterFollowing
+import org.seriaro.core.CoreException
+import org.seriaro.core.Dashboard
+import org.seriaro.core.EpisodeKey
+import org.seriaro.core.EpisodeState
+import org.seriaro.core.FollowingFilter
+import org.seriaro.core.SeriesProgress
+import org.seriaro.core.Series
+import org.seriaro.core.Settings
+import org.seriaro.core.accentUsesDarkText
+import org.seriaro.core.filterFollowing
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 

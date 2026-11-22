@@ -1,4 +1,4 @@
-package org.seriestracker.android
+package org.seriaro.android
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -55,11 +55,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import org.seriestracker.core.EpisodeState
-import org.seriestracker.core.FollowingFilter
-import org.seriestracker.core.Premiere
-import org.seriestracker.core.Series
-import org.seriestracker.core.SeriesProgress
+import org.seriaro.core.EpisodeState
+import org.seriaro.core.FollowingFilter
+import org.seriaro.core.Premiere
+import org.seriaro.core.Series
+import org.seriaro.core.SeriesProgress
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle

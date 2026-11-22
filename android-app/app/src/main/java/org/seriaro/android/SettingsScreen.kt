@@ -1,4 +1,4 @@
-package org.seriestracker.android
+package org.seriaro.android
 
 import android.Manifest
 import android.content.Intent
@@ -51,11 +51,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import org.seriestracker.core.Language
-import org.seriestracker.core.NavigationTab
-import org.seriestracker.core.Settings
-import org.seriestracker.core.ThemeMode
-import org.seriestracker.core.ThemeSettings
+import org.seriaro.core.Language
+import org.seriaro.core.NavigationTab
+import org.seriaro.core.Settings
+import org.seriaro.core.ThemeMode
+import org.seriaro.core.ThemeSettings
 import java.util.Collections
 
 @OptIn(ExperimentalLayoutApi::class)

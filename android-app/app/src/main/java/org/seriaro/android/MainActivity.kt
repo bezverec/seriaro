@@ -1,4 +1,4 @@
-package org.seriestracker.android
+package org.seriaro.android
 
 import android.content.ContextWrapper
 import android.content.Intent
@@ -61,12 +61,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
-import org.seriestracker.core.FollowingFilter
-import org.seriestracker.core.Language
-import org.seriestracker.core.NavigationTab
-import org.seriestracker.core.Series
-import org.seriestracker.core.ThemeMode
-import org.seriestracker.core.ThemeSettings
+import org.seriaro.core.FollowingFilter
+import org.seriaro.core.Language
+import org.seriaro.core.NavigationTab
+import org.seriaro.core.Series
+import org.seriaro.core.ThemeMode
+import org.seriaro.core.ThemeSettings
 
 class MainActivity : ComponentActivity() {
     private val model by viewModels<TrackerViewModel>()
