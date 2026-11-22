@@ -42,6 +42,9 @@
     <string name="replace_file">ghItlh yIlo\' \'ej De\' yItam</string>
     <string name="webdav">WebDAV</string>
     <string name="webdav_hint">De\' polmeH ghItlh HTTPS Quv naQ yIghItlh. mu\' pegh polta\'bogh Dalo\' DaneHchugh, mu\' pegh yIghItlhQo\'.</string>
+    <string name="webdav_local_network">Daq De\' tlhegh yIchaw\'</string>
+    <string name="webdav_local_network_hint">Daq De\' tlheghDaq WebDAV De\' toy\'wI\' Dalo\'meH, De\' tlhegh yIchaw\'.</string>
+    <string name="webdav_local_network_settings">ghunmeH mIw chaw\' yIpoSmoH</string>
     <string name="webdav_url">ghItlh HTTPS Quv</string>
     <string name="webdav_username">lo\'wI\' pong</string>
     <string name="webdav_password">mu\' pegh</string>

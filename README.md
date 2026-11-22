@@ -4,10 +4,10 @@ Android aplikace pro sledování seriálů a zhlédnutých epizod. Údaje o seri
 
 ## Sestavení
 
-Potřebujete JDK 17 nebo 21, Rust 1.100.0 s komponentami z `rust-toolchain.toml` a Android SDK. Příkaz `sdkmanager` nainstaluje potřebné balíky:
+Potřebujete JDK 21, Rust 1.100.0 s komponentami z `rust-toolchain.toml` a Android SDK. Příkaz `sdkmanager` nainstaluje potřebné balíky:
 
 ```sh
-sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358' platform-tools
+sdkmanager 'platforms;android-37.1' 'build-tools;36.0.0' 'ndk;28.2.13676358' platform-tools
 export ANDROID_HOME=/cesta/k/android-sdk
 cargo fmt --manifest-path core-rust/Cargo.toml --check
 cargo test --manifest-path core-rust/Cargo.toml --locked
@@ -15,7 +15,7 @@ cargo clippy --manifest-path core-rust/Cargo.toml --locked --all-targets --all-f
 ./android-app/gradlew :app:assembleDebug
 ```
 
-Výstup je `android-app/app/build/outputs/apk/debug/app-debug.apk`. Gradle během sestavení vygeneruje Kotlin bindingy UniFFI a sestaví Rust pro `armeabi-v7a`, `arm64-v8a` a `x86_64`. Skript `gradlew` stahuje přesně určenou distribuci Gradle a ověřuje její SHA-256. Lze také použít nainstalované Gradle 8.11.1 nastavením `SERIES_GRADLE` na jeho spustitelný soubor.
+Výstup je `android-app/app/build/outputs/apk/debug/app-debug.apk`. Gradle během sestavení vygeneruje Kotlin bindingy UniFFI a sestaví Rust pro `armeabi-v7a`, `arm64-v8a` a `x86_64`. Skript `gradlew` stahuje přesně určenou distribuci Gradle a ověřuje její SHA-256. Lze také použít nainstalované Gradle 9.6.0 nastavením `SERIES_GRADLE` na jeho spustitelný soubor.
 
 ## Použití
 

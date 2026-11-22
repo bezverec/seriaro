@@ -42,6 +42,9 @@
     <string name="replace_file">Přepsat ze souboru</string>
     <string name="webdav">WebDAV</string>
     <string name="webdav_hint">Zadejte úplnou HTTPS adresu záložního souboru. Prázdné pole hesla zachová uložené heslo.</string>
+    <string name="webdav_local_network">Přístup k místní síti</string>
+    <string name="webdav_local_network_hint">Pro zálohování na server WebDAV v místní síti povolte přístup k místní síti.</string>
+    <string name="webdav_local_network_settings">Otevřít oprávnění aplikace</string>
     <string name="webdav_url">HTTPS adresa souboru</string>
     <string name="webdav_username">Uživatelské jméno</string>
     <string name="webdav_password">Heslo</string>

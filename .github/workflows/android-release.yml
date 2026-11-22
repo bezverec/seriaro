@@ -23,7 +23,7 @@ jobs:
         run: |
           echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
           echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
-          sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358'
+          sdkmanager 'platforms;android-37.1' 'build-tools;36.0.0' 'ndk;28.2.13676358'
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358" >> "$GITHUB_ENV"
 
       - name: Test and build
@@ -38,7 +38,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           apk=android-app/app/build/outputs/apk/release/app-release-unsigned.apk
-          tools="$ANDROID_HOME/build-tools/35.0.0"
+          tools="$ANDROID_HOME/build-tools/36.0.0"
           "$tools/zipalign" -c -P 16 4 "$apk"
           package=$("$tools/aapt" dump badging "$apk" | sed -n '/^package: /p')
           [[ "$package" == "package: name='org.seriestracker.android' "* ]]

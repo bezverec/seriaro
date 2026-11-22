@@ -49,6 +49,9 @@
     <string name="replace_file">Replace from file</string>
     <string name="webdav">WebDAV</string>
     <string name="webdav_hint">Enter the full HTTPS address of the backup file. Leave the password blank to keep the saved one.</string>
+    <string name="webdav_local_network">Local network access</string>
+    <string name="webdav_local_network_hint">Allow local network access to use a WebDAV server on your local network.</string>
+    <string name="webdav_local_network_settings">Open app permissions</string>
     <string name="webdav_url">HTTPS file address</string>
     <string name="webdav_username">Username</string>
     <string name="webdav_password">Password</string>

@@ -42,6 +42,9 @@
     <string name="replace_file">Anstataŭigi el dosiero</string>
     <string name="webdav">WebDAV</string>
     <string name="webdav_hint">Enigu la plenan HTTPS-adreson de la rezerva dosiero. Lasu la pasvorton malplena por uzi la konservitan.</string>
+    <string name="webdav_local_network">Aliro al loka reto</string>
+    <string name="webdav_local_network_hint">Permesu aliron al la loka reto por uzi WebDAV-servilon en tiu reto.</string>
+    <string name="webdav_local_network_settings">Malfermi permesojn de la aplikaĵo</string>
     <string name="webdav_url">HTTPS-adreso de la dosiero</string>
     <string name="webdav_username">Uzantonomo</string>
     <string name="webdav_password">Pasvorto</string>

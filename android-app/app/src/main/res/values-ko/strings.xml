@@ -42,6 +42,9 @@
     <string name="replace_file">파일에서 덮어쓰기</string>
     <string name="webdav">WebDAV</string>
     <string name="webdav_hint">백업 파일의 전체 HTTPS 주소를 입력하세요. 저장된 비밀번호를 사용하려면 입력란을 비워 두세요.</string>
+    <string name="webdav_local_network">로컬 네트워크 접근</string>
+    <string name="webdav_local_network_hint">로컬 네트워크의 WebDAV 서버를 사용하려면 로컬 네트워크 접근을 허용하세요.</string>
+    <string name="webdav_local_network_settings">앱 권한 열기</string>
     <string name="webdav_url">파일의 HTTPS 주소</string>
     <string name="webdav_username">사용자 이름</string>
     <string name="webdav_password">비밀번호</string>

@@ -1,5 +1,17 @@
 package org.seriestracker.android
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings as AndroidSettings
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,29 +22,35 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.annotation.StringRes
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import org.seriestracker.core.Language
 import org.seriestracker.core.NavigationTab
 import org.seriestracker.core.Settings
@@ -52,10 +70,10 @@ internal fun SettingsScreen(
     onDownload: (Boolean) -> Unit,
     onNotifications: () -> Unit,
 ) {
-    var accent by rememberSaveable(settings.theme.accentHex) { mutableStateOf(settings.theme.accentHex) }
-    var url by rememberSaveable(state.credentials.webDavUrl) { mutableStateOf(state.credentials.webDavUrl) }
-    var username by rememberSaveable(state.credentials.webDavUsername) { mutableStateOf(state.credentials.webDavUsername) }
-    var password by remember { mutableStateOf("") }
+    val accent = key(settings.theme.accentHex) { rememberTextFieldState(settings.theme.accentHex) }
+    val url = key(state.credentials.webDavUrl) { rememberTextFieldState(state.credentials.webDavUrl) }
+    val username = key(state.credentials.webDavUsername) { rememberTextFieldState(state.credentials.webDavUsername) }
+    val password = remember { TextFieldState() }
     val enabled = !state.busy
     Column(
         Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
@@ -71,9 +89,9 @@ internal fun SettingsScreen(
                     }
                 }
             }
-            SettingsField(accent, { accent = it }, R.string.accent, enabled)
-            ActionButton(R.string.save_accent, enabled && accent != settings.theme.accentHex, primary = true) {
-                model.applySettings(settings.copy(theme = ThemeSettings(settings.theme.mode, accent)))
+            SettingsField(accent, R.string.accent, enabled)
+            ActionButton(R.string.save_accent, enabled && accent.text.toString() != settings.theme.accentHex, primary = true) {
+                model.applySettings(settings.copy(theme = ThemeSettings(settings.theme.mode, accent.text.toString())))
             }
             SettingsHeading(R.string.language)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -117,13 +135,23 @@ internal fun SettingsScreen(
         BorderedPanel {
             SettingsHeading(R.string.webdav)
             Subtle(stringResource(R.string.webdav_hint))
-            SettingsField(url, { url = it }, R.string.webdav_url, enabled, keyboardType = KeyboardType.Uri)
-            SettingsField(username, { username = it }, R.string.webdav_username, enabled)
-            SettingsField(password, { password = it }, R.string.webdav_password, enabled, secret = true)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                WebDavLocalNetworkPermission(enabled)
+            }
+            SettingsField(url, R.string.webdav_url, enabled, keyboardType = KeyboardType.Uri)
+            SettingsField(username, R.string.webdav_username, enabled)
+            OutlinedSecureTextField(
+                state = password,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = enabled,
+                label = { Text(stringResource(R.string.webdav_password)) },
+                shape = RectangleShape,
+                textObfuscationMode = TextObfuscationMode.Hidden,
+            )
             OptionRow {
-                ActionButton(R.string.save, enabled && url.isNotBlank(), primary = true) {
-                    model.saveWebDav(url, username, password)
-                    password = ""
+                ActionButton(R.string.save, enabled && url.text.isNotBlank(), primary = true) {
+                    model.saveWebDav(url.text.toString(), username.text.toString(), password.text.toString())
+                    password.edit { replace(0, length, "") }
                 }
                 ActionButton(R.string.remove_webdav, enabled && state.credentials.webDavUrl.isNotEmpty(), onClick = model::clearWebDav)
             }
@@ -140,6 +168,62 @@ internal fun SettingsScreen(
             ActionButton(R.string.tvmaze_credit) { uri.openUri("https://www.tvmaze.com/") }
             ActionButton(R.string.tvmaze_license_link) { uri.openUri("https://creativecommons.org/licenses/by-sa/4.0/") }
         }
+    }
+}
+
+private enum class LocalNetworkDialog { RATIONALE, APP_SETTINGS }
+
+@RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+@Composable
+private fun WebDavLocalNetworkPermission(enabled: Boolean) {
+    val activity = LocalActivity.current ?: return
+    val permission = Manifest.permission.ACCESS_LOCAL_NETWORK
+    var dialog by rememberSaveable { mutableStateOf<LocalNetworkDialog?>(null) }
+    val requestPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (!granted && !activity.shouldShowRequestPermissionRationale(permission)) {
+            dialog = LocalNetworkDialog.APP_SETTINGS
+        }
+    }
+    val openAppSettings = {
+        activity.startActivity(
+            Intent(
+                AndroidSettings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", activity.packageName, null),
+            ),
+        )
+    }
+
+    ActionButton(R.string.webdav_local_network, enabled) {
+        when {
+            ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED ->
+                openAppSettings()
+            activity.shouldShowRequestPermissionRationale(permission) -> dialog = LocalNetworkDialog.RATIONALE
+            else -> requestPermission.launch(permission)
+        }
+    }
+    dialog?.let { step ->
+        AlertDialog(
+            onDismissRequest = { dialog = null },
+            title = { Text(stringResource(R.string.webdav_local_network)) },
+            text = { Text(stringResource(R.string.webdav_local_network_hint)) },
+            shape = RectangleShape,
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline),
+            tonalElevation = 0.dp,
+            confirmButton = {
+                val label = when (step) {
+                    LocalNetworkDialog.RATIONALE -> R.string.confirm
+                    LocalNetworkDialog.APP_SETTINGS -> R.string.webdav_local_network_settings
+                }
+                ActionButton(label, primary = true) {
+                    dialog = null
+                    when (step) {
+                        LocalNetworkDialog.RATIONALE -> requestPermission.launch(permission)
+                        LocalNetworkDialog.APP_SETTINGS -> openAppSettings()
+                    }
+                }
+            },
+            dismissButton = { ActionButton(R.string.cancel) { dialog = null } },
+        )
     }
 }
 
@@ -197,23 +281,19 @@ private fun OptionRow(content: @Composable () -> Unit) {
 
 @Composable
 private fun SettingsField(
-    value: String,
-    change: (String) -> Unit,
-    label: Int,
+    state: TextFieldState,
+    @StringRes label: Int,
     enabled: Boolean,
-    secret: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
 ) {
     OutlinedTextField(
-        value = value,
-        onValueChange = change,
+        state = state,
         modifier = Modifier.fillMaxWidth(),
         enabled = enabled,
         label = { Text(stringResource(label)) },
         shape = RectangleShape,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = if (secret) KeyboardType.Password else keyboardType),
-        visualTransformation = if (secret) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
     )
 }
 

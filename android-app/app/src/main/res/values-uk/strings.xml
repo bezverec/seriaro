@@ -42,6 +42,9 @@
     <string name="replace_file">Замінити даними з файлу</string>
     <string name="webdav">WebDAV</string>
     <string name="webdav_hint">Введіть повну HTTPS-адресу резервного файлу. Залиште поле пароля порожнім, щоб використати збережений пароль.</string>
+    <string name="webdav_local_network">Доступ до локальної мережі</string>
+    <string name="webdav_local_network_hint">Щоб користуватися сервером WebDAV у локальній мережі, дозвольте доступ до цієї мережі.</string>
+    <string name="webdav_local_network_settings">Відкрити дозволи застосунку</string>
     <string name="webdav_url">HTTPS-адреса файлу</string>
     <string name="webdav_username">Ім’я користувача</string>
     <string name="webdav_password">Пароль</string>
