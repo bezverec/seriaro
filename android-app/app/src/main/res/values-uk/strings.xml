@@ -32,8 +32,8 @@
     <string name="language">Мова</string>
     <string name="save">Зберегти</string>
     <string name="notifications">Сповіщення про прем’єри</string>
-    <string name="notifications_hint">Застосунок перевіряє прем’єри протягом дня. Android може відкладати перевірки у фоновому режимі.</string>
-    <string name="notifications_action">Налаштувати сповіщення</string>
+    <string name="notifications_hint">Застосунок перевіряє прем’єри протягом дня. Android може відкладати перевірки у фоновому режимі. Щоб отримувати сповіщення, дозвольте їх також в Android.</string>
+    <string name="notifications_action">Налаштування сповіщень Android</string>
     <string name="backup">Резервна копія</string>
     <string name="backup_hint">Виберіть місце на пристрої або хмарне сховище в системному вікні вибору файлів. Під час об’єднання зберігаються поточне оформлення й мова.</string>
     <string name="backup_filename">seriaro-backup.json</string>
@@ -120,4 +120,13 @@
     <string name="mark_all_watched">Позначити всі епізоди як переглянуті</string>
     <string name="confirm_mark_all_watched">Позначити всі завантажені епізоди як переглянуті, зокрема й майбутні?</string>
     <string name="status_marked_all_watched">Усі завантажені епізоди позначено як переглянуті.</string>
+    <string name="navigation_order">Порядок кнопок на верхній панелі</string>
+    <string name="move_tab_up">Перемістити «%1$s» вгору</string>
+    <string name="move_tab_down">Перемістити «%1$s» вниз</string>
+    <string name="notifications_enabled">Увімкнено</string>
+    <string name="notifications_disabled">Вимкнено</string>
+    <string name="mark_season_watched">Позначити вибраний сезон як переглянутий</string>
+    <string name="confirm_mark_season_watched">Позначити всі завантажені епізоди вибраної групи як переглянуті, зокрема й майбутні?</string>
+    <string name="status_marked_season_watched">Усі завантажені епізоди вибраної групи позначено як переглянуті.</string>
+    <string name="mark_specials_watched">Позначити спецвипуски як переглянуті</string>
 </resources>

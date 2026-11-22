@@ -314,12 +314,14 @@ internal fun SeriesDetail(
     onPair: () -> Unit,
     onWatch: (EpisodeState) -> Unit,
     onWatchAll: () -> Unit,
+    onWatchSeason: (UInt) -> Unit,
     onArchive: (Boolean) -> Unit,
 ) {
     val grouped = episodes.groupBy { it.episode.season }
     val season = selectedSeason?.takeIf { it in grouped }
         ?: grouped.keys.firstOrNull { it > 0u }
         ?: grouped.keys.firstOrNull()
+    val seasonEpisodes = grouped[season].orEmpty()
     LazyColumn(contentPadding = screenPadding, verticalArrangement = screenSpacing) {
         item {
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -368,7 +370,11 @@ internal fun SeriesDetail(
                 }
             }
         }
-        items(grouped[season].orEmpty(), key = { "${it.episode.season}-${it.episode.number}" }) { item ->
+        if (season != null && seasonEpisodes.any { !it.watched }) item {
+            val label = if (season == 0u) R.string.mark_specials_watched else R.string.mark_season_watched
+            ActionButton(label, enabled) { onWatchSeason(season) }
+        }
+        items(seasonEpisodes, key = { "${it.episode.season}-${it.episode.number}" }) { item ->
             val ep = item.episode
             BorderedPanel {
                 EpisodeCode(ep.season, ep.number)

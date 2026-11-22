@@ -112,6 +112,11 @@ internal class TrackerViewModel(application: Application) : AndroidViewModel(app
         snapshot().copy(message = UiMessage.status(R.string.status_marked_all_watched))
     }
 
+    fun markSeasonWatched(series: Series, season: UInt) = operation {
+        app.tracker.markSeasonWatched(series.id, season)
+        snapshot().copy(message = UiMessage.status(R.string.status_marked_season_watched))
+    }
+
     fun setArchived(series: Series, archived: Boolean) = operation {
         app.tracker.setArchived(series.id, archived)
         snapshot().copy(message = UiMessage.status(if (archived) R.string.status_archived else R.string.status_unarchived))
@@ -148,6 +153,9 @@ internal class TrackerViewModel(application: Application) : AndroidViewModel(app
 
     fun applySettings(settings: Settings) = operation {
         app.tracker.setSettings(settings)
+        if (dashboard?.settings?.notificationsEnabled != settings.notificationsEnabled) {
+            PremiereWorker.applyNotificationPreference(app, settings.notificationsEnabled)
+        }
         snapshot().copy(message = UiMessage.status(R.string.status_saved))
     }
 
@@ -182,8 +190,7 @@ internal class TrackerViewModel(application: Application) : AndroidViewModel(app
             output.toByteArray()
         }
         app.tracker.importBackup(data, merge)
-        PremiereWorker.checkSoon(app)
-        snapshot(null).copy(message = UiMessage.status(R.string.status_imported))
+        snapshotAfterImport()
     }
 
     fun uploadWebDav() = operation {
@@ -195,8 +202,15 @@ internal class TrackerViewModel(application: Application) : AndroidViewModel(app
     fun downloadWebDav(merge: Boolean) = operation {
         val config = app.secrets.readWebDav() ?: return@operation copy(message = UiMessage.error(R.string.error_webdav_missing))
         app.tracker.downloadWebdav(config.url, config.username, config.password, merge)
-        PremiereWorker.checkSoon(app)
-        snapshot(null).copy(message = UiMessage.status(R.string.status_imported))
+        snapshotAfterImport()
+    }
+
+    private fun ScreenState.snapshotAfterImport(): ScreenState {
+        val updated = snapshot(null)
+        updated.dashboard?.settings?.let {
+            PremiereWorker.applyNotificationPreference(app, it.notificationsEnabled)
+        }
+        return updated.copy(message = UiMessage.status(R.string.status_imported))
     }
 
     fun dismissMessage(message: UiMessage) = mutable.update {

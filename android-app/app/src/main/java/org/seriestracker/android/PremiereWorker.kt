@@ -49,7 +49,15 @@ internal class PremiereWorker(context: Context, parameters: WorkerParameters) :
         } catch (_: CoreException.InvalidItem) {
             // Use the local snapshot when the catalog returns incomplete metadata.
         }
-        val context = app.localized(tracker.settings().language)
+        synchronized(app.premiereNotificationLock) { postPremieres(app, today) }
+        return if (retryRefresh) Result.retry() else Result.success()
+    }
+
+    private fun postPremieres(app: TrackerApplication, today: String) {
+        val tracker = app.tracker
+        val settings = tracker.settings()
+        if (!settings.notificationsEnabled) return
+        val context = app.localized(settings.language)
         val manager = app.getSystemService(NotificationManager::class.java)
         val channel = NotificationChannel(
             CHANNEL_ID,
@@ -62,7 +70,7 @@ internal class PremiereWorker(context: Context, parameters: WorkerParameters) :
             (Build.VERSION.SDK_INT >= 33 &&
                 app.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
         ) {
-            return if (retryRefresh) Result.retry() else Result.success()
+            return
         }
         val launch = PendingIntent.getActivity(
             app,
@@ -87,7 +95,6 @@ internal class PremiereWorker(context: Context, parameters: WorkerParameters) :
             manager.notify("$today-${key.seriesId}-${key.season}-${key.number}", 0, notification)
             tracker.markNotified(key, today)
         }
-        return if (retryRefresh) Result.retry() else Result.success()
     }
 
     companion object {
@@ -107,6 +114,16 @@ internal class PremiereWorker(context: Context, parameters: WorkerParameters) :
                 ExistingWorkPolicy.KEEP,
                 OneTimeWorkRequestBuilder<PremiereWorker>().build(),
             )
+        }
+
+        fun applyNotificationPreference(app: TrackerApplication, enabled: Boolean) {
+            if (enabled) {
+                checkSoon(app)
+            } else {
+                synchronized(app.premiereNotificationLock) {
+                    app.getSystemService(NotificationManager::class.java).cancelAll()
+                }
+            }
         }
     }
 }

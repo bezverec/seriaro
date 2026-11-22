@@ -13,6 +13,7 @@ class TrackerApplication : Application() {
         Tracker.open(getDatabasePath("series.sqlite3").also { it.parentFile?.mkdirs() }.absolutePath)
     }
     internal val secrets by lazy { SecretStore(this) }
+    internal val premiereNotificationLock = Any()
 }
 
 internal fun localDate(): String = LocalDate.now().toString()

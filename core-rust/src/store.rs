@@ -221,11 +221,12 @@ impl Store {
         Ok(())
     }
 
-    pub(crate) fn mark_all_watched(&self, id: u32) -> Result<()> {
+    pub(crate) fn mark_episodes_watched(&self, id: u32, season: Option<u32>) -> Result<()> {
         self.lock()?.execute(
             "INSERT OR IGNORE INTO watched(series_id, season, number)
-             SELECT series_id, season, number FROM episodes WHERE series_id = ?",
-            [id],
+             SELECT series_id, season, number FROM episodes
+             WHERE series_id = ?1 AND (?2 IS NULL OR season = ?2)",
+            params![id, season],
         )?;
         Ok(())
     }
@@ -647,8 +648,8 @@ mod tests {
             filter_following(entries, "sErIeS 1".into(), FollowingFilter::InProgress).len(),
             1
         );
-        store.mark_all_watched(1)?;
-        store.mark_all_watched(1)?;
+        store.mark_episodes_watched(1, None)?;
+        store.mark_episodes_watched(1, None)?;
         assert!(store.episodes(1)?.iter().all(|state| state.watched));
         assert!(!store.episodes(2)?[0].watched);
         store.set_archived(1, true)?;
@@ -668,6 +669,38 @@ mod tests {
         assert!(target.dashboard(TODAY, TODAY)?.following[0].archived);
         target.set_archived(1, false)?;
         assert!(!target.dashboard(TODAY, TODAY)?.following[0].archived);
+        Ok(())
+    }
+
+    #[test]
+    fn marking_a_season_only_changes_its_episodes_and_supports_specials() -> Result<()> {
+        let store = Store::open(":memory:".into())?;
+        let mut show = catalog(1);
+        let episode = show.episodes[0].clone();
+        show.episodes.push(Episode {
+            season: 0,
+            ..episode.clone()
+        });
+        show.episodes.push(Episode {
+            season: 2,
+            ..episode
+        });
+        store.save_catalog(&show, TODAY, true)?;
+        store.save_catalog(&catalog(2), TODAY, true)?;
+
+        store.mark_episodes_watched(1, Some(0))?;
+        store.mark_episodes_watched(1, Some(0))?;
+        store.mark_episodes_watched(1, Some(2))?;
+        store.mark_episodes_watched(1, Some(99))?;
+        for entry in store.episodes(1)? {
+            assert_eq!(entry.watched, matches!(entry.episode.season, 0 | 2));
+        }
+        assert!(store.episodes(2)?.iter().all(|entry| !entry.watched));
+        assert_eq!(decode_backup(&store.export_backup()?)?.watched.len(), 2);
+        assert_eq!(
+            store.set_archived(1, true),
+            Err(CoreError::IncompleteSeries)
+        );
         Ok(())
     }
 
@@ -804,6 +837,8 @@ mod tests {
                 mode: ThemeMode::Amoled,
                 accent_hex: "#0079A8".into(),
             },
+            navigation_order: crate::DEFAULT_NAVIGATION_ORDER.into_iter().rev().collect(),
+            notifications_enabled: false,
         };
         source.set_settings(&settings)?;
         let backup = source.export_backup()?;

@@ -32,8 +32,8 @@
     <string name="language">Hol</string>
     <string name="save">yIpol</string>
     <string name="notifications">lutHom chu\' QInmey</string>
-    <string name="notifications_hint">qaStaHvIS jaj, lutHommey chu\' nej pat. rut SIbI\' nejbe\' Android.</string>
-    <string name="notifications_action">QInmey tIwuq</string>
+    <string name="notifications_hint">qaStaHvIS jaj, lutHommey chu\' nej pat. rut SIbI\' nejbe\' Android. QInmey DaHevmeH AndroidDaq QInmey tIchaw\'.</string>
+    <string name="notifications_action">Android QInmey tIwuq</string>
     <string name="backup">De\' nIb</string>
     <string name="backup_hint">De\' polmeH Daq yIwIv. pat ghItlh wIvmeH jan yIlo\'. De\' DamuvmoHtaHvIS, HaSta Hol je choHlu\'be\'.</string>
     <string name="backup_filename">seriaro-backup.json</string>
@@ -114,4 +114,13 @@
     <string name="mark_all_watched">lutHommey Hoch Dabejta\' \'e\' yIper</string>
     <string name="confirm_mark_all_watched">lutHommey Hoch Dabejta\' \'e\' Dapera\'? lutHommey muchlu\'be\'bogh je ngaS Qu\'vam.</string>
     <string name="status_marked_all_watched">bejlu\'ta\'bogh lutHommey Hoch perlu\'.</string>
+    <string name="navigation_order">nIvbogh SeHlaw leQmey pat</string>
+    <string name="move_tab_up">%1$s yIpep</string>
+    <string name="move_tab_down">%1$s yIghIrmoH</string>
+    <string name="notifications_enabled">chu\'lu\'</string>
+    <string name="notifications_disabled">chu\'Ha\'lu\'</string>
+    <string name="mark_season_watched">poH wIvlu\'bogh Dabejta\' \'e\' yIper</string>
+    <string name="confirm_mark_season_watched">ghom wIvlu\'bogh lutHommey Hoch Dabejta\' \'e\' Dapera\'? lutHommey muchlu\'be\'bogh je ngaS Qu\'vam.</string>
+    <string name="status_marked_season_watched">ghom wIvlu\'bogh bejlu\'ta\'bogh lutHommey Hoch perlu\'.</string>
+    <string name="mark_specials_watched">lutHommey le\' Dabejta\' \'e\' yIper</string>
 </resources>

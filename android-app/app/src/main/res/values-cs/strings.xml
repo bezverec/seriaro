@@ -32,8 +32,8 @@
     <string name="language">Jazyk</string>
     <string name="save">Uložit</string>
     <string name="notifications">Upozornění na premiéry</string>
-    <string name="notifications_hint">Aplikace kontroluje premiéry během dne. Android může kontroly na pozadí odložit.</string>
-    <string name="notifications_action">Nastavení upozornění</string>
+    <string name="notifications_hint">Aplikace kontroluje premiéry během dne. Android může kontroly na pozadí odložit. Pro příjem upozornění je potřeba povolit je také v Androidu.</string>
+    <string name="notifications_action">Nastavení upozornění v Androidu</string>
     <string name="backup">Soubor se zálohou</string>
     <string name="backup_hint">V systémovém výběru souborů zvolte místo v zařízení nebo poskytovatele úložiště. Sloučení zachová aktuální vzhled a jazyk.</string>
     <string name="backup_filename">seriaro-backup.json</string>
@@ -120,4 +120,13 @@
     <string name="mark_all_watched">Označit všechny epizody jako zhlédnuté</string>
     <string name="confirm_mark_all_watched">Označit všechny načtené epizody včetně případných nadcházejících jako zhlédnuté?</string>
     <string name="status_marked_all_watched">Všechny načtené epizody jsou označeny jako zhlédnuté.</string>
+    <string name="navigation_order">Pořadí tlačítek v horní liště</string>
+    <string name="move_tab_up">Posunout %1$s nahoru</string>
+    <string name="move_tab_down">Posunout %1$s dolů</string>
+    <string name="notifications_enabled">Zapnuto</string>
+    <string name="notifications_disabled">Vypnuto</string>
+    <string name="mark_season_watched">Označit vybranou řadu jako zhlédnutou</string>
+    <string name="confirm_mark_season_watched">Označit všechny načtené díly ve vybrané skupině jako zhlédnuté, včetně případných nadcházejících?</string>
+    <string name="status_marked_season_watched">Všechny načtené díly ve vybrané skupině jsou označeny jako zhlédnuté.</string>
+    <string name="mark_specials_watched">Označit speciály jako zhlédnuté</string>
 </resources>

@@ -39,8 +39,8 @@
     <string name="language_tlh" translatable="false">tlhIngan Hol</string>
     <string name="save">Save</string>
     <string name="notifications">Premiere notifications</string>
-    <string name="notifications_hint">The app checks for premieres during the day. Android can delay its background checks.</string>
-    <string name="notifications_action">Notification settings</string>
+    <string name="notifications_hint">The app checks for premieres during the day. Android can delay its background checks. Android must also allow notifications before Seriaro can show alerts.</string>
+    <string name="notifications_action">Android notification settings</string>
     <string name="backup">Backup file</string>
     <string name="backup_hint">Choose a location on the device or a provider in the system file picker. Merging keeps your current appearance and language.</string>
     <string name="backup_filename">seriaro-backup.json</string>
@@ -123,4 +123,13 @@
     <string name="mark_all_watched">Mark all episodes as watched</string>
     <string name="confirm_mark_all_watched">Mark all loaded episodes as watched, including any upcoming episodes?</string>
     <string name="status_marked_all_watched">All loaded episodes marked as watched.</string>
+    <string name="navigation_order">Top bar button order</string>
+    <string name="move_tab_up">Move %1$s up</string>
+    <string name="move_tab_down">Move %1$s down</string>
+    <string name="notifications_enabled">Enabled</string>
+    <string name="notifications_disabled">Disabled</string>
+    <string name="mark_season_watched">Mark this season as watched</string>
+    <string name="confirm_mark_season_watched">Mark all loaded episodes in the selected group as watched, including any upcoming episodes?</string>
+    <string name="status_marked_season_watched">All loaded episodes in the selected group are marked as watched.</string>
+    <string name="mark_specials_watched">Mark specials as watched</string>
 </resources>

@@ -84,10 +84,49 @@ impl Default for ThemeSettings {
     }
 }
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, uniffi::Record)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, uniffi::Enum)]
+#[serde(rename_all = "snake_case")]
+pub enum NavigationTab {
+    Calendar,
+    Search,
+    Following,
+    Settings,
+}
+
+const DEFAULT_NAVIGATION_ORDER: [NavigationTab; 4] = [
+    NavigationTab::Calendar,
+    NavigationTab::Search,
+    NavigationTab::Following,
+    NavigationTab::Settings,
+];
+
+fn default_navigation_order() -> Vec<NavigationTab> {
+    DEFAULT_NAVIGATION_ORDER.to_vec()
+}
+
+const fn notifications_enabled_by_default() -> bool {
+    true
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, uniffi::Record)]
 pub struct Settings {
     pub theme: ThemeSettings,
     pub language: Language,
+    #[serde(default = "default_navigation_order")]
+    pub navigation_order: Vec<NavigationTab>,
+    #[serde(default = "notifications_enabled_by_default")]
+    pub notifications_enabled: bool,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            theme: ThemeSettings::default(),
+            language: Language::default(),
+            navigation_order: default_navigation_order(),
+            notifications_enabled: notifications_enabled_by_default(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, uniffi::Record)]
@@ -282,7 +321,11 @@ impl Tracker {
     }
 
     pub fn mark_all_watched(&self, id: u32) -> Result<()> {
-        self.store.mark_all_watched(id)
+        self.store.mark_episodes_watched(id, None)
+    }
+
+    pub fn mark_season_watched(&self, id: u32, season: u32) -> Result<()> {
+        self.store.mark_episodes_watched(id, Some(season))
     }
 
     pub fn poster_for_series(&self, id: u32, url: Option<String>) -> Result<Option<Vec<u8>>> {
@@ -397,6 +440,13 @@ pub fn normalize_accent(value: String) -> Result<String> {
 
 fn validated_settings(mut settings: Settings) -> Result<Settings> {
     settings.theme.accent_hex = normalize_accent(settings.theme.accent_hex)?;
+    if settings.navigation_order.len() != DEFAULT_NAVIGATION_ORDER.len()
+        || !DEFAULT_NAVIGATION_ORDER
+            .iter()
+            .all(|tab| settings.navigation_order.contains(tab))
+    {
+        settings.navigation_order = default_navigation_order();
+    }
     Ok(settings)
 }
 
@@ -419,6 +469,33 @@ pub fn accent_uses_dark_text(value: String) -> Result<bool> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn older_settings_keep_the_existing_navigation_and_notification_defaults() -> Result<()> {
+        let stored = r##"{"theme":{"mode":"dark","accent_hex":"#708090"},"language":"cs"}"##;
+        let settings: Settings = serde_json::from_str(stored).map_err(|_| CoreError::Database)?;
+        assert_eq!(settings.theme.mode, ThemeMode::Dark);
+        assert_eq!(settings.language, Language::Cs);
+        assert_eq!(settings.navigation_order, DEFAULT_NAVIGATION_ORDER);
+        assert!(settings.notifications_enabled);
+        Ok(())
+    }
+
+    #[test]
+    fn validates_navigation_order_without_changing_the_notification_preference() -> Result<()> {
+        let mut settings = Settings {
+            navigation_order: vec![NavigationTab::Search; 4],
+            notifications_enabled: false,
+            ..Settings::default()
+        };
+        assert_eq!(
+            validated_settings(settings.clone())?.navigation_order,
+            DEFAULT_NAVIGATION_ORDER
+        );
+        settings.navigation_order = DEFAULT_NAVIGATION_ORDER.into_iter().rev().collect();
+        assert_eq!(validated_settings(settings.clone())?, settings);
+        Ok(())
+    }
 
     #[test]
     fn validates_accent_and_chooses_maximum_contrast() -> Result<()> {

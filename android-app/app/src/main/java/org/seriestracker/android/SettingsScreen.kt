@@ -12,6 +12,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,18 +22,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.annotation.StringRes
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import org.seriestracker.core.Language
+import org.seriestracker.core.NavigationTab
 import org.seriestracker.core.Settings
 import org.seriestracker.core.ThemeMode
 import org.seriestracker.core.ThemeSettings
+import java.util.Collections
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -78,8 +85,26 @@ internal fun SettingsScreen(
             }
         }
         BorderedPanel {
+            SettingsHeading(R.string.navigation_order)
+            NavigationOrder(settings.navigationOrder, enabled) { order ->
+                model.applySettings(settings.copy(navigationOrder = order))
+            }
+        }
+        BorderedPanel {
             SettingsHeading(R.string.notifications)
             Subtle(stringResource(R.string.notifications_hint))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                ActionButton(R.string.notifications_enabled, enabled, settings.notificationsEnabled) {
+                    if (!settings.notificationsEnabled) {
+                        model.applySettings(settings.copy(notificationsEnabled = true))
+                    }
+                }
+                ActionButton(R.string.notifications_disabled, enabled, !settings.notificationsEnabled) {
+                    if (settings.notificationsEnabled) {
+                        model.applySettings(settings.copy(notificationsEnabled = false))
+                    }
+                }
+            }
             ActionButton(R.string.notifications_action, enabled, onClick = onNotifications)
         }
         BorderedPanel {
@@ -114,6 +139,47 @@ internal fun SettingsScreen(
             Subtle(credit)
             ActionButton(R.string.tvmaze_credit) { uri.openUri("https://www.tvmaze.com/") }
             ActionButton(R.string.tvmaze_license_link) { uri.openUri("https://creativecommons.org/licenses/by-sa/4.0/") }
+        }
+    }
+}
+
+@Composable
+private fun NavigationOrder(
+    tabs: List<NavigationTab>,
+    enabled: Boolean,
+    onOrderChanged: (List<NavigationTab>) -> Unit,
+) {
+    tabs.forEachIndexed { index, tab ->
+        val label = stringResource(tab.label)
+        val move = { destination: Int ->
+            val reordered = tabs.toMutableList()
+            Collections.swap(reordered, index, destination)
+            onOrderChanged(reordered)
+        }
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(label, Modifier.weight(1f))
+            OutlinedIconButton(
+                onClick = { move(index - 1) },
+                enabled = enabled && index > 0,
+                shape = RectangleShape,
+            ) {
+                Icon(painterResource(R.drawable.ic_move_up), stringResource(R.string.move_tab_up, label))
+            }
+            OutlinedIconButton(
+                onClick = { move(index + 1) },
+                enabled = enabled && index < tabs.lastIndex,
+                shape = RectangleShape,
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_move_up),
+                    stringResource(R.string.move_tab_down, label),
+                    modifier = Modifier.rotate(180f),
+                )
+            }
         }
     }
 }

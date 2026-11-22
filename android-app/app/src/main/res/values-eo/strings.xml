@@ -32,8 +32,8 @@
     <string name="language">Lingvo</string>
     <string name="save">Konservi</string>
     <string name="notifications">Sciigoj pri premieroj</string>
-    <string name="notifications_hint">La aplikaĵo kontrolas premierojn dum la tago. Android povas prokrasti kontrolojn en la fono.</string>
-    <string name="notifications_action">Agordi sciigojn</string>
+    <string name="notifications_hint">La aplikaĵo kontrolas premierojn dum la tago. Android povas prokrasti kontrolojn en la fono. Por ricevi sciigojn, permesu ilin ankaŭ en Android.</string>
+    <string name="notifications_action">Sciigaj agordoj de Android</string>
     <string name="backup">Rezerva kopio</string>
     <string name="backup_hint">Elektu lokon en la aparato aŭ provizanton per la sistema dosierelektilo. Kunfandado konservas viajn nunajn aspekton kaj lingvon.</string>
     <string name="backup_filename">seriaro-backup.json</string>
@@ -116,4 +116,13 @@
     <string name="mark_all_watched">Marki ĉiujn epizodojn kiel spektitajn</string>
     <string name="confirm_mark_all_watched">Ĉu marki ĉiujn ŝargitajn epizodojn kiel spektitajn, inkluzive de la venontaj?</string>
     <string name="status_marked_all_watched">Ĉiuj ŝargitaj epizodoj markitaj kiel spektitaj.</string>
+    <string name="navigation_order">Ordo de la butonoj en la supra breto</string>
+    <string name="move_tab_up">Movi %1$s supren</string>
+    <string name="move_tab_down">Movi %1$s malsupren</string>
+    <string name="notifications_enabled">Ŝaltitaj</string>
+    <string name="notifications_disabled">Malŝaltitaj</string>
+    <string name="mark_season_watched">Marki la elektitan sezonon kiel spektitan</string>
+    <string name="confirm_mark_season_watched">Ĉu marki ĉiujn ŝargitajn epizodojn en la elektita grupo kiel spektitajn, inkluzive de la venontaj?</string>
+    <string name="status_marked_season_watched">Ĉiuj ŝargitaj epizodoj de la elektita grupo estas markitaj kiel spektitaj.</string>
+    <string name="mark_specials_watched">Marki la specialajn epizodojn kiel spektitajn</string>
 </resources>

@@ -1,10 +1,9 @@
 package org.seriestracker.android
 
-import android.Manifest
 import android.content.ContextWrapper
-import android.content.pm.PackageManager
-import android.os.Build
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings as AndroidSettings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -64,6 +63,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
 import org.seriestracker.core.FollowingFilter
 import org.seriestracker.core.Language
+import org.seriestracker.core.NavigationTab
 import org.seriestracker.core.Series
 import org.seriestracker.core.ThemeMode
 import org.seriestracker.core.ThemeSettings
@@ -110,12 +110,21 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class Page(val label: Int, val icon: Int) {
-    CALENDAR(R.string.nav_calendar, R.drawable.ic_nav_calendar),
-    SEARCH(R.string.nav_search, R.drawable.ic_nav_search),
-    FOLLOWING(R.string.nav_following, R.drawable.ic_nav_following),
-    SETTINGS(R.string.nav_settings, R.drawable.ic_nav_settings),
-}
+internal val NavigationTab.label: Int
+    get() = when (this) {
+        NavigationTab.CALENDAR -> R.string.nav_calendar
+        NavigationTab.SEARCH -> R.string.nav_search
+        NavigationTab.FOLLOWING -> R.string.nav_following
+        NavigationTab.SETTINGS -> R.string.nav_settings
+    }
+
+private val NavigationTab.icon: Int
+    get() = when (this) {
+        NavigationTab.CALENDAR -> R.drawable.ic_nav_calendar
+        NavigationTab.SEARCH -> R.drawable.ic_nav_search
+        NavigationTab.FOLLOWING -> R.drawable.ic_nav_following
+        NavigationTab.SETTINGS -> R.drawable.ic_nav_settings
+    }
 
 private enum class PendingAction(val message: Int) {
     REPLACE_FILE(R.string.confirm_replace),
@@ -123,12 +132,13 @@ private enum class PendingAction(val message: Int) {
     UPLOAD_DAV(R.string.confirm_upload),
     UNFOLLOW(R.string.confirm_unfollow),
     MARK_ALL_WATCHED(R.string.confirm_mark_all_watched),
+    MARK_SEASON_WATCHED(R.string.confirm_mark_season_watched),
 }
 
 @Composable
 private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
-    var page by rememberSaveable { mutableStateOf(Page.FOLLOWING) }
-    var pairingOrigin by rememberSaveable { mutableStateOf(Page.FOLLOWING) }
+    var page by rememberSaveable { mutableStateOf(NavigationTab.FOLLOWING) }
+    var pairingOrigin by rememberSaveable { mutableStateOf(NavigationTab.FOLLOWING) }
     var followingQuery by rememberSaveable { mutableStateOf("") }
     var followingFilter by rememberSaveable { mutableStateOf(FollowingFilter.ACTIVE) }
     var action by rememberSaveable { mutableStateOf<PendingAction?>(null) }
@@ -154,13 +164,15 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
         pairingId = null
         if (legacy != null && !state.busy) openSeries(legacy)
     }
-    BackHandler {
+    val hasInternalBack = action != null || pairingId != null || showDetail ||
+        legacy != null || page != NavigationTab.FOLLOWING
+    BackHandler(enabled = hasInternalBack) {
         when {
             action != null -> action = null
             pairingId != null -> pairingId = null
             showDetail -> closeDetail()
             legacy != null -> cancelPairing()
-            page != Page.FOLLOWING -> page = Page.FOLLOWING
+            page != NavigationTab.FOLLOWING -> page = NavigationTab.FOLLOWING
         }
     }
     val context = LocalContext.current
@@ -171,8 +183,8 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
     val createBackup = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) model.exportDocument(uri)
     }
-    val requestPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) PremiereWorker.checkSoon(context)
+    val notificationSettings = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        PremiereWorker.checkSoon(context)
     }
 
     action?.let { pending ->
@@ -194,6 +206,11 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
                         PendingAction.REPLACE_DAV -> model.downloadWebDav(merge = false)
                         PendingAction.UPLOAD_DAV -> model.uploadWebDav()
                         PendingAction.MARK_ALL_WATCHED -> state.detail?.let(model::markAllWatched)
+                        PendingAction.MARK_SEASON_WATCHED -> {
+                            val series = state.detail
+                            val season = selectedSeason?.toUInt()
+                            if (series != null && season != null) model.markSeasonWatched(series, season)
+                        }
                         PendingAction.UNFOLLOW -> {
                             state.detail?.let(model::unfollow)
                             showDetail = false
@@ -236,7 +253,8 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
                     Modifier.fillMaxWidth().selectableGroup(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Page.entries.forEach { candidate ->
+                    val order = state.dashboard?.settings?.navigationOrder ?: NavigationTab.entries
+                    order.forEach { candidate ->
                         val active = page == candidate
                         val colors = MaterialTheme.colorScheme
                         Box(
@@ -292,15 +310,19 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
                     onPair = {
                         pairingOrigin = page
                         legacyId = detail.id.toLong()
-                        page = Page.SEARCH
+                        page = NavigationTab.SEARCH
                         showDetail = false
                         model.search(detail.name)
                     },
                     onWatch = model::watched,
                     onWatchAll = { action = PendingAction.MARK_ALL_WATCHED },
+                    onWatchSeason = { season ->
+                        selectedSeason = season.toInt()
+                        action = PendingAction.MARK_SEASON_WATCHED
+                    },
                     onArchive = { model.setArchived(detail, it) },
                 )
-                page == Page.FOLLOWING -> FollowingPage(
+                page == NavigationTab.FOLLOWING -> FollowingPage(
                     series = dashboard.following,
                     query = followingQuery,
                     changeQuery = { followingQuery = it },
@@ -309,17 +331,17 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
                     model = model,
                     enabled = canAct,
                     open = openSeries,
-                    onSearch = { page = Page.SEARCH; showDetail = false },
+                    onSearch = { page = NavigationTab.SEARCH; showDetail = false },
                 )
-                page == Page.SEARCH -> SearchScreen(
+                page == NavigationTab.SEARCH -> SearchScreen(
                     state, model, legacy, openSeries, followSeries,
                     pair = { pairingId = it.id.toLong() },
                     cancelPairing = cancelPairing,
                 )
-                page == Page.CALENDAR -> CalendarScreen(dashboard.upcoming, canAct, model::refreshCalendar) { id ->
+                page == NavigationTab.CALENDAR -> CalendarScreen(dashboard.upcoming, canAct, model::refreshCalendar) { id ->
                     dashboard.following.find { it.series.id == id }?.series?.let(openSeries)
                 }
-                page == Page.SETTINGS -> SettingsScreen(
+                page == NavigationTab.SETTINGS -> SettingsScreen(
                     settings = dashboard.settings,
                     state = state,
                     model = model,
@@ -337,15 +359,10 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
                         if (merge) model.downloadWebDav(merge = true) else action = PendingAction.REPLACE_DAV
                     },
                     onNotifications = {
-                        if (Build.VERSION.SDK_INT >= 33 &&
-                            context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            requestPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        } else {
-                            PremiereWorker.checkSoon(context)
-                            context.startActivity(android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                                .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName))
-                        }
+                        notificationSettings.launch(
+                            Intent(AndroidSettings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(AndroidSettings.EXTRA_APP_PACKAGE, context.packageName),
+                        )
                     },
                 )
             }
