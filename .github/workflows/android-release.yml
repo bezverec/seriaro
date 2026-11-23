@@ -21,10 +21,27 @@ jobs:
 
       - name: Configure Android tools
         run: |
-          echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
-          echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
-          sdkmanager 'platforms;android-37.1' 'build-tools;36.0.0' 'ndk;28.2.13676358'
-          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358" >> "$GITHUB_ENV"
+          export JAVA_HOME="$JAVA_HOME_21_X64"
+          sdk_root="$RUNNER_TEMP/android-sdk"
+          tools_archive="$RUNNER_TEMP/android-command-line-tools.zip"
+          curl --fail --silent --show-error --location --retry 3 \
+            --output "$tools_archive" https://dl.google.com/android/repository/commandlinetools-linux-15859902_latest.zip
+          printf '%s  %s\n' 4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583 "$tools_archive" | sha256sum --check
+
+          mkdir -p "$sdk_root/cmdline-tools"
+          unzip -q "$tools_archive" -d "$RUNNER_TEMP/android-command-line-tools"
+          mv "$RUNNER_TEMP/android-command-line-tools/cmdline-tools" "$sdk_root/cmdline-tools/pinned"
+          sdkmanager="$sdk_root/cmdline-tools/pinned/bin/sdkmanager"
+          "$sdkmanager" --sdk_root="$sdk_root" --licenses < <(yes) > /dev/null
+          "$sdkmanager" --sdk_root="$sdk_root" 'platforms;android-37.1' 'build-tools;36.0.0' 'ndk;28.2.13676358'
+
+          {
+            echo "JAVA_HOME=$JAVA_HOME"
+            echo "ANDROID_HOME=$sdk_root"
+            echo "ANDROID_SDK_ROOT=$sdk_root"
+            echo "ANDROID_NDK_HOME=$sdk_root/ndk/28.2.13676358"
+          } >> "$GITHUB_ENV"
+          echo "$JAVA_HOME/bin" >> "$GITHUB_PATH"
 
       - name: Test and build
         run: |
