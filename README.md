@@ -1,47 +1,47 @@
 # Seriaro
 
-Android aplikace pro sledování seriálů a zhlédnutých epizod. Údaje o seriálech a premiérách čte z veřejného katalogu TVmaze. Seznam, historie a uživatelská nastavení jsou místní. Licence GPL-3.0-or-later.
+Seriaro is an Android app for tracking TV shows and watched episodes. It gets show and premiere information from the public TVmaze catalog. Your watchlist, viewing history, and settings are stored on your device. The app is licensed under GPL-3.0-or-later.
 
-## Sestavení
+## Build
 
-Gradle používá Temurin 27 jako JVM pro sestavení. Pro spuštění Gradlu a `sdkmanager` lze použít JDK 21. Sestavení vyžaduje také Rust 1.100.0 s komponentami z `rust-toolchain.toml` a Android SDK. Příkaz `sdkmanager` nainstaluje potřebné balíky.
+Gradle uses Temurin 27 as its build JVM. You can use JDK 21 to launch Gradle and run `sdkmanager`. The build also requires Rust 1.100.0 with the components listed in `rust-toolchain.toml`, plus the Android SDK. Use `sdkmanager` to install the required packages.
 
 ```sh
 sdkmanager 'platforms;android-37.1' 'build-tools;36.0.0' 'ndk;28.2.13676358' platform-tools
-export ANDROID_HOME=/cesta/k/android-sdk
+export ANDROID_HOME=/path/to/android-sdk
 cargo fmt --manifest-path core-rust/Cargo.toml --check
 cargo test --manifest-path core-rust/Cargo.toml --locked
 cargo clippy --manifest-path core-rust/Cargo.toml --locked --all-targets --all-features -- -D warnings
 ./android-app/gradlew :app:assembleDebug
 ```
 
-Výstup je `android-app/app/build/outputs/apk/debug/app-debug.apk`. Gradle během sestavení vygeneruje Kotlin bindingy UniFFI a sestaví Rust pro `armeabi-v7a`, `arm64-v8a` a `x86_64`. Skript `gradlew` stahuje přesně určenou distribuci Gradle a ověřuje její SHA-256. Lze také použít nainstalované Gradle 9.9.2 nastavením `SERIES_GRADLE` na jeho spustitelný soubor.
+The debug APK is written to `android-app/app/build/outputs/apk/debug/app-debug.apk`. Gradle generates the UniFFI Kotlin bindings and builds Rust for `armeabi-v7a`, `arm64-v8a`, and `x86_64`. The `gradlew` script downloads a pinned Gradle distribution and checks its SHA-256 digest. To use an existing Gradle 9.9.2 installation, set `SERIES_GRADLE` to its executable.
 
-## Použití
+## Usage
 
-- V **Hledat** vyhledejte seriál a přidejte ho ke sledovaným. Veřejné API TVmaze funguje bez účtu a klíče. Názvy a popisy odpovídají katalogu. Rozhraní lze v nastavení přepnout na češtinu, angličtinu, esperanto, korejštinu, ukrajinštinu nebo klingonštinu. Klingonština používá latinkový zápis a datum ve formátu ISO.
-- Po aktualizaci z verze 0.1.0 můžete v detailu dříve uloženého seriálu použít **Propojit s TVmaze**. Zvolte odpovídající titul a potvrďte přesun historie podle řady a čísla epizody. Starší zálohy JSON v1 lze dál importovat.
-- Údaje dodává [TVmaze](https://www.tvmaze.com/) pod licencí [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Popisy se převádějí z HTML do prostého textu.
-- V detailu seriálu můžete jako zhlédnuté označit jednotlivé epizody, vybranou řadu nebo všechny načtené díly včetně nadcházejících. Dokončený seriál lze archivovat a kdykoli vrátit mezi aktivní. Ve **Sledovaných** lze kombinovat filtr podle stavu s hledáním v názvech.
-- Pořadí tlačítek v horní liště změníte v **Nastavení**. Kalendář zobrazuje termíny z TVmaze a WorkManager kontroluje premiéry zhruba každých šest hodin podle možností Androidu. Místní upozornění můžete zapnout nebo vypnout v **Nastavení → Upozornění na premiéry**. Pro příjem upozornění je potřeba také povolení v Androidu.
-- Zálohu JSON v1 lze uložit nebo otevřít v systémovém výběru souborů. Pro WebDAV zadejte úplnou HTTPS adresu souboru například `https://cloud.example/remote.php/dav/files/jan/series.json`, uživatele a heslo nebo aplikační heslo. Server musí předložit důvěryhodný TLS certifikát. Heslo je šifrované pomocí Android Keystore.
-- Sloučení přidává chybějící seriály a epizody, sjednotí seznam zhlédnutých epizod a zachová místní nastavení. Přepsání obnovuje obsah a nastavení ze zálohy. JSON obsahuje kopii údajů o seriálech pro čtení po obnově bez připojení.
+- Open **Search** to find a TV show and add it to your watchlist. The public TVmaze API requires neither an account nor an API key. Show titles and descriptions come from the catalog. In Settings, you can switch the app language to Czech, English, Esperanto, Korean, Ukrainian, or Klingon. The Klingon interface uses Latin script and ISO date formatting.
+- After upgrading from version 0.1.0, open a previously saved show and select **Link to TVmaze**. Choose the matching show and confirm the transfer of your viewing history by season and episode number. You can still import older JSON v1 backups.
+- Catalog data comes from TVmaze under CC BY-SA 4.0. The app converts HTML descriptions to plain text. [TVmaze](https://www.tvmaze.com/) · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- On a show's details screen, you can mark individual episodes, a selected season, or all loaded episodes as watched, including upcoming episodes. You can archive a completed show and restore it to your active watchlist at any time. Under **Following**, you can combine the status filter with a title search.
+- You can reorder the top bar buttons in **Settings**. The calendar displays dates from TVmaze, and WorkManager checks for premieres about every six hours as Android scheduling allows. You can turn local alerts on or off under **Settings → Premiere notifications**. Android notification permission is also required.
+- You can save and open JSON v1 backups through the Android file picker. For WebDAV, enter the full HTTPS URL of the backup file, such as `https://cloud.example/remote.php/dav/files/jan/series.json`, your username, and your password or app password. The server must present a trusted TLS certificate. The app encrypts your password using Android Keystore.
+- Merging adds missing shows and episodes, combines watched episodes, and preserves your local settings. Overwriting restores the contents and settings from the backup. The JSON includes a copy of the show data so you can read it offline after restoring.
 
-## Stav pro F-Droid
+## F-Droid build status
 
-Cargo sestavuje knihovny Rustu ze zdrojů podle `Cargo.lock`. Android build používá vydané balíky AndroidX, Kotlin a JNA z repozitářů Maven. Striktní požadavek na sestavení těchto závislostí ze zdrojového kódu a reprodukovatelnost release APK je potřeba ještě ověřit v samostatném sestavení. Ve zdrojovém stromu nejsou vložené binární knihovny ani Gradle wrapper JAR.
+Cargo builds Rust dependencies from source using `Cargo.lock`. The Android build uses published AndroidX, Kotlin, and JNA packages from Maven repositories. A separate build is still needed to verify that these dependencies can be built from source and that the release APK is reproducible. The source tree contains no bundled binary libraries or Gradle wrapper JAR.
 
-### F-Droid na GitHub Pages
+### F-Droid on GitHub Pages
 
-Adresa repozitáře je [https://bezverec.github.io/seriaro/fdroid/repo](https://bezverec.github.io/seriaro/fdroid/repo). GitHub Pages používá jako zdroj GitHub Actions.
+The F-Droid repository is hosted on GitHub Pages and deployed through GitHub Actions. [Seriaro F-Droid repository](https://bezverec.github.io/seriaro/fdroid/repo)
 
-Podepsaný APK s ID `org.seriaro.android` vložte do `keys/repo/`. Ve složce `keys` vygenerujte podepsaný index a zabalte veřejné soubory.
+Place the signed APK with application ID `org.seriaro.android` in `keys/repo/`. In the `keys` directory, generate a signed index and package the public files.
 
 ```sh
 fdroid update
 tar --hard-dereference -czf fdroid-pages.tar.gz --transform='s,^repo,fdroid/repo,' repo
 ```
 
-Soubor `fdroid-pages.tar.gz` přiložte ke zveřejněnému vydání na GitHubu. Workflow **Publish F-Droid repository** dostane tag tohoto vydání a nahraje jeho veřejný obsah na Pages. Podpisové klíče a konfigurace s heslem zůstávají lokálně ve složce `keys`.
+Attach `fdroid-pages.tar.gz` to a published GitHub release. Run the **Publish F-Droid repository** workflow with that release's tag to deploy the repository to GitHub Pages. Keep the signing keys and password-bearing configuration in your local `keys` directory.
 
-Android považuje `org.seriaro.android` za novou aplikaci. Pro přenos seznamu, historie a nastavení exportujte v původní aplikaci zálohu JSON a importujte ji v nové. Přihlašovací údaje k WebDAV zadejte znovu.
+Android treats `org.seriaro.android` as a separate app. To transfer your watchlist, viewing history, and settings, export a JSON backup from the previous app and import it into the new one. Enter your WebDAV credentials again.
