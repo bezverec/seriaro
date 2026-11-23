@@ -4,7 +4,7 @@ Android aplikace pro sledování seriálů a zhlédnutých epizod. Údaje o seri
 
 ## Sestavení
 
-Potřebujete JDK 21, Rust 1.100.0 s komponentami z `rust-toolchain.toml` a Android SDK. Příkaz `sdkmanager` nainstaluje potřebné balíky:
+Gradle používá Temurin 27 jako JVM pro sestavení. Pro spuštění Gradlu a `sdkmanager` lze použít JDK 21. Sestavení vyžaduje také Rust 1.100.0 s komponentami z `rust-toolchain.toml` a Android SDK. Příkaz `sdkmanager` nainstaluje potřebné balíky.
 
 ```sh
 sdkmanager 'platforms;android-37.1' 'build-tools;36.0.0' 'ndk;28.2.13676358' platform-tools
@@ -15,7 +15,7 @@ cargo clippy --manifest-path core-rust/Cargo.toml --locked --all-targets --all-f
 ./android-app/gradlew :app:assembleDebug
 ```
 
-Výstup je `android-app/app/build/outputs/apk/debug/app-debug.apk`. Gradle během sestavení vygeneruje Kotlin bindingy UniFFI a sestaví Rust pro `armeabi-v7a`, `arm64-v8a` a `x86_64`. Skript `gradlew` stahuje přesně určenou distribuci Gradle a ověřuje její SHA-256. Lze také použít nainstalované Gradle 9.6.0 nastavením `SERIES_GRADLE` na jeho spustitelný soubor.
+Výstup je `android-app/app/build/outputs/apk/debug/app-debug.apk`. Gradle během sestavení vygeneruje Kotlin bindingy UniFFI a sestaví Rust pro `armeabi-v7a`, `arm64-v8a` a `x86_64`. Skript `gradlew` stahuje přesně určenou distribuci Gradle a ověřuje její SHA-256. Lze také použít nainstalované Gradle 9.9.2 nastavením `SERIES_GRADLE` na jeho spustitelný soubor.
 
 ## Použití
 
@@ -30,3 +30,18 @@ Výstup je `android-app/app/build/outputs/apk/debug/app-debug.apk`. Gradle běhe
 ## Stav pro F-Droid
 
 Cargo sestavuje knihovny Rustu ze zdrojů podle `Cargo.lock`. Android build používá vydané balíky AndroidX, Kotlin a JNA z repozitářů Maven. Striktní požadavek na sestavení těchto závislostí ze zdrojového kódu a reprodukovatelnost release APK je potřeba ještě ověřit v samostatném sestavení. Ve zdrojovém stromu nejsou vložené binární knihovny ani Gradle wrapper JAR.
+
+### F-Droid na GitHub Pages
+
+Adresa repozitáře je [https://bezverec.github.io/seriaro/fdroid/repo](https://bezverec.github.io/seriaro/fdroid/repo). GitHub Pages používá jako zdroj GitHub Actions.
+
+Podepsaný APK s ID `org.seriaro.android` vložte do `keys/repo/`. Ve složce `keys` vygenerujte podepsaný index a zabalte veřejné soubory.
+
+```sh
+fdroid update
+tar --hard-dereference -czf fdroid-pages.tar.gz --transform='s,^repo,fdroid/repo,' repo
+```
+
+Soubor `fdroid-pages.tar.gz` přiložte ke zveřejněnému vydání na GitHubu. Workflow **Publish F-Droid repository** dostane tag tohoto vydání a nahraje jeho veřejný obsah na Pages. Podpisové klíče a konfigurace s heslem zůstávají lokálně ve složce `keys`.
+
+Android považuje `org.seriaro.android` za novou aplikaci. Pro přenos seznamu, historie a nastavení exportujte v původní aplikaci zálohu JSON a importujte ji v nové. Přihlašovací údaje k WebDAV zadejte znovu.

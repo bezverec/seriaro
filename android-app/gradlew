@@ -2,8 +2,8 @@
 set -euo pipefail
 
 directory=$(cd "$(dirname "$0")" && pwd)
-version=9.6.0
-checksum=bbaeb2fef8710818cf0e261201dab964c572f92b942812df0c3620d62a529a01
+version=9.9.2
+checksum=971fcd7150ca4ba04852c0b2ca0d2d0ab9468e14b03473eab19528809914c76b
 if [[ ${SERIES_GRADLE:-} ]]; then
     exec "$SERIES_GRADLE" -p "$directory" "$@"
 fi

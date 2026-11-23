@@ -41,7 +41,7 @@ jobs:
           tools="$ANDROID_HOME/build-tools/36.0.0"
           "$tools/zipalign" -c -P 16 4 "$apk"
           package=$("$tools/aapt" dump badging "$apk" | sed -n '/^package: /p')
-          [[ "$package" == "package: name='org.seriestracker.android' "* ]]
+          [[ "$package" == "package: name='org.seriaro.android' "* ]]
           version=$(sed -n "s/.* versionName='\([^']*\)'.*/\1/p" <<< "$package")
           [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           tag="v$version"

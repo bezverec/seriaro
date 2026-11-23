@@ -23,11 +23,11 @@ android {
     ndkPath = providers.environmentVariable("ANDROID_NDK_HOME").orNull?.takeIf { it.isNotBlank() }
 
     defaultConfig {
-        applicationId = "org.seriestracker.android"
+        applicationId = "org.seriaro.android"
         minSdk = minimumAndroidSdk
         targetSdk = 37
-        versionCode = 6
-        versionName = "0.2.4"
+        versionCode = 7
+        versionName = "0.2.5"
         ndk.abiFilters += requestedAbis.get().takeIf { it.isNotEmpty() }?.split(Regex("\\s+"))
             ?: listOf("armeabi-v7a", "arm64-v8a", "x86_64")
     }

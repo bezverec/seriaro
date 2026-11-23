@@ -1,0 +1,65 @@
+name: Publish F-Droid repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Tag of the published release containing fdroid-pages.tar.gz
+        type: string
+        required: true
+
+concurrency:
+  group: fdroid-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download and verify the signed repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          REPO_URL: https://bezverec.github.io/seriaro/fdroid/repo
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          archive="$RUNNER_TEMP/fdroid-pages.tar.gz"
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern fdroid-pages.tar.gz --output "$archive"
+          tar -tzf "$archive" | while IFS= read -r member; do
+            case "$member" in
+              fdroid/|fdroid/repo/|fdroid/repo/*) ;;
+              *) exit 1 ;;
+            esac
+            case "/$member" in
+              */../*|*/.git/*|*/config.yml|*/keystore.*|*.p12|*.jks|*.keystore|*.key) exit 1 ;;
+            esac
+          done
+          tar -tvzf "$archive" | awk 'substr($1,1,1) !~ /^[-d]$/ { exit 1 }'
+          mkdir -p site
+          tar --extract --gzip --file "$archive" --directory site --no-same-owner --no-same-permissions
+          repo=site/fdroid/repo
+          verification=$(LC_ALL=C jarsigner -verify "$repo/entry.jar")
+          [[ "$verification" == *"jar verified."* ]]
+          expected=$(unzip -p "$repo/entry.jar" entry.json | jq -er '.index.sha256 | select(test("^[a-f0-9]{64}$"))')
+          printf '%s  %s\n' "$expected" "$repo/index-v2.json" | sha256sum --check
+          jq -e --arg url "$REPO_URL" '
+            (.repo.address | rtrimstr("/")) == $url and (.packages | has("org.seriaro.android"))
+          ' "$repo/index-v2.json" > /dev/null
+
+      - name: Upload public F-Droid files
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
