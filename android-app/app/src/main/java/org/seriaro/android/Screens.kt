@@ -303,6 +303,7 @@ internal fun SearchScreen(
 internal fun SeriesDetail(
     series: Series,
     episodes: List<EpisodeState>,
+    watchedSeasons: List<UInt>,
     selectedSeason: UInt?,
     selectSeason: (UInt) -> Unit,
     enabled: Boolean,
@@ -313,14 +314,15 @@ internal fun SeriesDetail(
     onRefresh: () -> Unit,
     onPair: () -> Unit,
     onWatch: (EpisodeState) -> Unit,
-    onWatchAll: () -> Unit,
-    onWatchSeason: (UInt) -> Unit,
+    onSetAllWatched: (Boolean) -> Unit,
+    onSetSeasonWatched: (UInt, Boolean) -> Unit,
     onArchive: (Boolean) -> Unit,
 ) {
     val grouped = episodes.groupBy { it.episode.season }
-    val season = selectedSeason?.takeIf { it in grouped }
-        ?: grouped.keys.firstOrNull { it > 0u }
-        ?: grouped.keys.firstOrNull()
+    val seasons = (grouped.keys + watchedSeasons).sorted()
+    val season = selectedSeason?.takeIf { it in seasons }
+        ?: seasons.firstOrNull { it > 0u }
+        ?: seasons.firstOrNull()
     val seasonEpisodes = grouped[season].orEmpty()
     LazyColumn(contentPadding = screenPadding, verticalArrangement = screenSpacing) {
         item {
@@ -347,11 +349,15 @@ internal fun SeriesDetail(
                 Subtle(stringResource(R.string.legacy_series))
             }
         }
-        val allWatched = episodes.isNotEmpty() && episodes.all { it.watched }
-        if (episodes.isNotEmpty() || archived) item {
+        val hasUnwatchedEpisodes = episodes.any { !it.watched }
+        val allWatched = episodes.isNotEmpty() && !hasUnwatchedEpisodes
+        if (episodes.isNotEmpty() || watchedSeasons.isNotEmpty() || archived) item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                if (episodes.isNotEmpty() && !allWatched) {
-                    ActionButton(R.string.mark_all_watched, enabled, onClick = onWatchAll)
+                if (hasUnwatchedEpisodes) {
+                    ActionButton(R.string.mark_all_watched, enabled) { onSetAllWatched(true) }
+                }
+                if (watchedSeasons.isNotEmpty()) {
+                    ActionButton(R.string.mark_all_unwatched, enabled) { onSetAllWatched(false) }
                 }
                 if (archived || allWatched) {
                     ActionButton(if (archived) R.string.unarchive else R.string.archive, enabled) {
@@ -360,20 +366,32 @@ internal fun SeriesDetail(
                 }
             }
         }
-        if (grouped.isEmpty()) item { Subtle(stringResource(R.string.episodes_empty)) }
-        if (grouped.isNotEmpty()) item {
+        if (seasons.isNotEmpty()) item {
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                grouped.keys.forEach { number ->
+                seasons.forEach { number ->
                     val label = if (number == 0u) stringResource(R.string.specials)
                         else stringResource(R.string.season_n, number.toInt())
                     SquareButton(label, enabled, primary = number == season) { selectSeason(number) }
                 }
             }
         }
-        if (season != null && seasonEpisodes.any { !it.watched }) item {
-            val label = if (season == 0u) R.string.mark_specials_watched else R.string.mark_season_watched
-            ActionButton(label, enabled) { onWatchSeason(season) }
+        if (season != null) {
+            val hasUnwatched = seasonEpisodes.any { !it.watched }
+            val hasWatched = season in watchedSeasons
+            if (hasUnwatched || hasWatched) item {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (hasUnwatched) {
+                        val label = if (season == 0u) R.string.mark_specials_watched else R.string.mark_season_watched
+                        ActionButton(label, enabled) { onSetSeasonWatched(season, true) }
+                    }
+                    if (hasWatched) {
+                        val label = if (season == 0u) R.string.mark_specials_unwatched else R.string.mark_season_unwatched
+                        ActionButton(label, enabled) { onSetSeasonWatched(season, false) }
+                    }
+                }
+            }
         }
+        if (seasonEpisodes.isEmpty()) item { Subtle(stringResource(R.string.episodes_empty)) }
         items(seasonEpisodes, key = { "${it.episode.season}-${it.episode.number}" }) { item ->
             val ep = item.episode
             BorderedPanel {

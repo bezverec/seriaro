@@ -328,6 +328,18 @@ impl Tracker {
         self.store.mark_episodes_watched(id, Some(season))
     }
 
+    pub fn set_episodes_watched(&self, id: u32, season: Option<u32>, watched: bool) -> Result<()> {
+        if watched {
+            self.store.mark_episodes_watched(id, season)
+        } else {
+            self.store.mark_episodes_unwatched(id, season)
+        }
+    }
+
+    pub fn watched_seasons(&self, id: u32) -> Result<Vec<u32>> {
+        self.store.watched_seasons(id)
+    }
+
     pub fn poster_for_series(&self, id: u32, url: Option<String>) -> Result<Option<Vec<u8>>> {
         if !tvmaze::is_tvmaze(id) {
             return Ok(None);

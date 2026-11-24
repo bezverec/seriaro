@@ -126,4 +126,11 @@
     <string name="confirm_mark_season_watched">방영 예정인 회차를 포함하여 선택한 그룹의 불러온 모든 회차를 시청 완료로 표시할까요?</string>
     <string name="status_marked_season_watched">선택한 그룹의 불러온 모든 회차를 시청 완료로 표시했습니다.</string>
     <string name="mark_specials_watched">특별편을 시청 완료로 표시</string>
+    <string name="mark_all_unwatched">모든 회차의 시청 완료 표시 취소</string>
+    <string name="confirm_mark_all_unwatched">이 시리즈의 모든 회차에서 시청 완료 표시를 취소할까요?</string>
+    <string name="status_marked_all_unwatched">이 시리즈의 시청 완료 표시를 취소했습니다.</string>
+    <string name="mark_season_unwatched">선택한 시즌의 시청 완료 표시 취소</string>
+    <string name="confirm_mark_season_unwatched">선택한 그룹의 모든 회차에서 시청 완료 표시를 취소할까요?</string>
+    <string name="status_marked_season_unwatched">선택한 그룹의 시청 완료 표시를 취소했습니다.</string>
+    <string name="mark_specials_unwatched">특별편의 시청 완료 표시 취소</string>
 </resources>

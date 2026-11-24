@@ -132,4 +132,11 @@
     <string name="confirm_mark_season_watched">Позначити всі завантажені епізоди вибраної групи як переглянуті, зокрема й майбутні?</string>
     <string name="status_marked_season_watched">Усі завантажені епізоди вибраної групи позначено як переглянуті.</string>
     <string name="mark_specials_watched">Позначити спецвипуски як переглянуті</string>
+    <string name="mark_all_unwatched">Зняти позначки перегляду з усіх епізодів</string>
+    <string name="confirm_mark_all_unwatched">Зняти позначки перегляду з усіх епізодів цього серіалу?</string>
+    <string name="status_marked_all_unwatched">Позначки перегляду цього серіалу знято.</string>
+    <string name="mark_season_unwatched">Зняти позначки перегляду з вибраного сезону</string>
+    <string name="confirm_mark_season_unwatched">Зняти позначки перегляду з усіх епізодів вибраної групи?</string>
+    <string name="status_marked_season_unwatched">Позначки перегляду вибраної групи знято.</string>
+    <string name="mark_specials_unwatched">Зняти позначки перегляду зі спецвипусків</string>
 </resources>

@@ -132,7 +132,9 @@ private enum class PendingAction(val message: Int) {
     UPLOAD_DAV(R.string.confirm_upload),
     UNFOLLOW(R.string.confirm_unfollow),
     MARK_ALL_WATCHED(R.string.confirm_mark_all_watched),
+    MARK_ALL_UNWATCHED(R.string.confirm_mark_all_unwatched),
     MARK_SEASON_WATCHED(R.string.confirm_mark_season_watched),
+    MARK_SEASON_UNWATCHED(R.string.confirm_mark_season_unwatched),
 }
 
 @Composable
@@ -205,11 +207,15 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
                         }
                         PendingAction.REPLACE_DAV -> model.downloadWebDav(merge = false)
                         PendingAction.UPLOAD_DAV -> model.uploadWebDav()
-                        PendingAction.MARK_ALL_WATCHED -> state.detail?.let(model::markAllWatched)
-                        PendingAction.MARK_SEASON_WATCHED -> {
+                        PendingAction.MARK_ALL_WATCHED, PendingAction.MARK_ALL_UNWATCHED -> {
+                            state.detail?.let { model.setEpisodesWatched(it, null, pending == PendingAction.MARK_ALL_WATCHED) }
+                        }
+                        PendingAction.MARK_SEASON_WATCHED, PendingAction.MARK_SEASON_UNWATCHED -> {
                             val series = state.detail
                             val season = selectedSeason?.toUInt()
-                            if (series != null && season != null) model.markSeasonWatched(series, season)
+                            if (series != null && season != null) {
+                                model.setEpisodesWatched(series, season, pending == PendingAction.MARK_SEASON_WATCHED)
+                            }
                         }
                         PendingAction.UNFOLLOW -> {
                             state.detail?.let(model::unfollow)
@@ -301,7 +307,12 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
                     else ActionButton(R.string.retry, onClick = model::reload)
                 }
                 showDetail && detail != null -> SeriesDetail(
-                    detail, state.episodes, selectedSeason?.toUInt(), { selectedSeason = it.toInt() }, canAct,
+                    series = detail,
+                    episodes = state.episodes,
+                    watchedSeasons = state.watchedSeasons,
+                    selectedSeason = selectedSeason?.toUInt(),
+                    selectSeason = { selectedSeason = it.toInt() },
+                    enabled = canAct,
                     archived = dashboard.following.any { it.series.id == detail.id && it.archived },
                     loadPoster = model::loadPoster,
                     onBack = closeDetail,
@@ -315,10 +326,12 @@ private fun TrackerScreen(state: ScreenState, model: TrackerViewModel) {
                         model.search(detail.name)
                     },
                     onWatch = model::watched,
-                    onWatchAll = { action = PendingAction.MARK_ALL_WATCHED },
-                    onWatchSeason = { season ->
+                    onSetAllWatched = { watched ->
+                        action = if (watched) PendingAction.MARK_ALL_WATCHED else PendingAction.MARK_ALL_UNWATCHED
+                    },
+                    onSetSeasonWatched = { season, watched ->
                         selectedSeason = season.toInt()
-                        action = PendingAction.MARK_SEASON_WATCHED
+                        action = if (watched) PendingAction.MARK_SEASON_WATCHED else PendingAction.MARK_SEASON_UNWATCHED
                     },
                     onArchive = { model.setArchived(detail, it) },
                 )

@@ -231,6 +231,24 @@ impl Store {
         Ok(())
     }
 
+    pub(crate) fn mark_episodes_unwatched(&self, id: u32, season: Option<u32>) -> Result<()> {
+        self.lock()?.execute(
+            "DELETE FROM watched WHERE series_id = ?1 AND (?2 IS NULL OR season = ?2)",
+            params![id, season],
+        )?;
+        Ok(())
+    }
+
+    pub(crate) fn watched_seasons(&self, id: u32) -> Result<Vec<u32>> {
+        let conn = self.lock()?;
+        let mut stmt = conn
+            .prepare("SELECT DISTINCT season FROM watched WHERE series_id = ? ORDER BY season")?;
+        let seasons = stmt
+            .query_map([id], |row| row.get(0))?
+            .collect::<rusqlite::Result<_>>()?;
+        Ok(seasons)
+    }
+
     pub(crate) fn set_archived(&self, id: u32, archived: bool) -> Result<()> {
         let updated = self.lock()?.execute(
             "UPDATE following SET archived = ?1 WHERE id = ?2
@@ -700,6 +718,51 @@ mod tests {
         assert_eq!(
             store.set_archived(1, true),
             Err(CoreError::IncompleteSeries)
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn clearing_watch_marks_respects_scope_and_clears_unlisted_episodes() -> Result<()> {
+        let store = Store::open(":memory:".into())?;
+        let mut show = catalog(1);
+        let episode = show.episodes[0].clone();
+        show.episodes.push(Episode {
+            season: 0,
+            ..episode.clone()
+        });
+        show.episodes.push(Episode {
+            season: 2,
+            ..episode
+        });
+        store.save_catalog(&show, TODAY, true)?;
+        store.save_catalog(&catalog(2), TODAY, true)?;
+        store.mark_episodes_watched(1, None)?;
+        store.mark_episodes_watched(2, None)?;
+        store.set_archived(1, true)?;
+
+        show.episodes.retain(|episode| episode.season == 1);
+        store.save_catalog(&show, TODAY, false)?;
+        assert_eq!(store.watched_seasons(1)?, vec![0, 1, 2]);
+
+        store.mark_episodes_unwatched(1, Some(0))?;
+        store.mark_episodes_unwatched(1, Some(0))?;
+        assert_eq!(store.watched_seasons(1)?, vec![1, 2]);
+        assert!(store.episodes(1)?[0].watched);
+
+        store.mark_episodes_unwatched(1, None)?;
+        store.mark_episodes_unwatched(1, None)?;
+        assert!(store.watched_seasons(1)?.is_empty());
+        assert!(!store.episodes(1)?[0].watched);
+        assert!(store.episodes(2)?[0].watched);
+        assert!(store.dashboard(TODAY, TODAY)?.following[0].archived);
+        let backup = decode_backup(&store.export_backup()?)?;
+        assert_eq!(
+            backup.watched,
+            vec![EpisodeKey {
+                series_id: 2,
+                ..KEY
+            }]
         );
         Ok(())
     }

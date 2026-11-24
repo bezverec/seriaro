@@ -126,4 +126,11 @@
     <string name="confirm_mark_season_watched">ghom wIvlu\'bogh lutHommey Hoch Dabejta\' \'e\' Dapera\'? lutHommey muchlu\'be\'bogh je ngaS Qu\'vam.</string>
     <string name="status_marked_season_watched">ghom wIvlu\'bogh bejlu\'ta\'bogh lutHommey Hoch perlu\'.</string>
     <string name="mark_specials_watched">lutHommey le\' Dabejta\' \'e\' yIper</string>
+    <string name="mark_all_unwatched">lutHommey Hoch bejpu\'ghach permey tIteq</string>
+    <string name="confirm_mark_all_unwatched">lut mIrvam lutHommey Hoch bejpu\'ghach permey Dateq\'a\'?</string>
+    <string name="status_marked_all_unwatched">lut mIr bejpu\'ghach permey teqlu\'.</string>
+    <string name="mark_season_unwatched">poH wIvlu\'bogh bejpu\'ghach permey tIteq</string>
+    <string name="confirm_mark_season_unwatched">ghom wIvlu\'bogh lutHommey Hoch bejpu\'ghach permey Dateq\'a\'?</string>
+    <string name="status_marked_season_unwatched">ghom wIvlu\'bogh bejpu\'ghach permey teqlu\'.</string>
+    <string name="mark_specials_unwatched">lutHommey le\' bejpu\'ghach permey tIteq</string>
 </resources>

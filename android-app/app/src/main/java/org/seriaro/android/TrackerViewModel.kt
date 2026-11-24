@@ -50,6 +50,7 @@ internal data class ScreenState(
     val lastQuery: String = "",
     val detail: Series? = null,
     val episodes: List<EpisodeState> = emptyList(),
+    val watchedSeasons: List<UInt> = emptyList(),
     val credentials: CredentialsSummary = CredentialsSummary(),
     val busy: Boolean = false,
     val message: UiMessage? = null,
@@ -74,7 +75,9 @@ internal class TrackerViewModel(application: Application) : AndroidViewModel(app
     }
 
     fun search(query: String) = operation {
-        val cleared = copy(search = null, lastQuery = query, detail = null, episodes = emptyList())
+        val cleared = copy(
+            search = null, lastQuery = query, detail = null, episodes = emptyList(), watchedSeasons = emptyList(),
+        )
         try {
             cleared.copy(search = app.tracker.search(query))
         } catch (error: CoreException) {
@@ -94,7 +97,7 @@ internal class TrackerViewModel(application: Application) : AndroidViewModel(app
 
     fun show(series: Series) = operation { snapshot(series) }
 
-    fun closeDetail() = mutable.update { it.copy(detail = null, episodes = emptyList()) }
+    fun closeDetail() = mutable.update { it.copy(detail = null, episodes = emptyList(), watchedSeasons = emptyList()) }
 
     fun unfollow(series: Series) = operation {
         app.tracker.unfollow(series.id)
@@ -107,14 +110,14 @@ internal class TrackerViewModel(application: Application) : AndroidViewModel(app
         snapshot()
     }
 
-    fun markAllWatched(series: Series) = operation {
-        app.tracker.markAllWatched(series.id)
-        snapshot().copy(message = UiMessage.status(R.string.status_marked_all_watched))
-    }
-
-    fun markSeasonWatched(series: Series, season: UInt) = operation {
-        app.tracker.markSeasonWatched(series.id, season)
-        snapshot().copy(message = UiMessage.status(R.string.status_marked_season_watched))
+    fun setEpisodesWatched(series: Series, season: UInt?, watched: Boolean) = operation {
+        app.tracker.setEpisodesWatched(series.id, season, watched)
+        val status = if (season == null) {
+            if (watched) R.string.status_marked_all_watched else R.string.status_marked_all_unwatched
+        } else {
+            if (watched) R.string.status_marked_season_watched else R.string.status_marked_season_unwatched
+        }
+        snapshot().copy(message = UiMessage.status(status))
     }
 
     fun setArchived(series: Series, archived: Boolean) = operation {
@@ -248,7 +251,8 @@ internal class TrackerViewModel(application: Application) : AndroidViewModel(app
             dashboard = updated,
             darkAccentText = accentUsesDarkText(updated.settings.theme.accentHex),
             detail = updatedDetail,
-            episodes = if (updatedDetail == null) emptyList() else app.tracker.episodes(updatedDetail.id),
+            episodes = updatedDetail?.let { app.tracker.episodes(it.id) }.orEmpty(),
+            watchedSeasons = updatedDetail?.let { app.tracker.watchedSeasons(it.id) }.orEmpty(),
         )
     }
 

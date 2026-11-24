@@ -128,4 +128,11 @@
     <string name="confirm_mark_season_watched">Ĉu marki ĉiujn ŝargitajn epizodojn en la elektita grupo kiel spektitajn, inkluzive de la venontaj?</string>
     <string name="status_marked_season_watched">Ĉiuj ŝargitaj epizodoj de la elektita grupo estas markitaj kiel spektitaj.</string>
     <string name="mark_specials_watched">Marki la specialajn epizodojn kiel spektitajn</string>
+    <string name="mark_all_unwatched">Nuligi la spektomarkojn de ĉiuj epizodoj</string>
+    <string name="confirm_mark_all_unwatched">Ĉu nuligi la spektomarkojn de ĉiuj epizodoj en ĉi tiu serio?</string>
+    <string name="status_marked_all_unwatched">La spektomarkoj de ĉi tiu serio estas nuligitaj.</string>
+    <string name="mark_season_unwatched">Nuligi la spektomarkojn de ĉi tiu sezono</string>
+    <string name="confirm_mark_season_unwatched">Ĉu nuligi la spektomarkojn de ĉiuj epizodoj en la elektita grupo?</string>
+    <string name="status_marked_season_unwatched">La spektomarkoj de la elektita grupo estas nuligitaj.</string>
+    <string name="mark_specials_unwatched">Nuligi la spektomarkojn de la specialaj epizodoj</string>
 </resources>

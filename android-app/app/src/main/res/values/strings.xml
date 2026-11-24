@@ -135,4 +135,11 @@
     <string name="confirm_mark_season_watched">Mark all loaded episodes in the selected group as watched, including any upcoming episodes?</string>
     <string name="status_marked_season_watched">All loaded episodes in the selected group are marked as watched.</string>
     <string name="mark_specials_watched">Mark specials as watched</string>
+    <string name="mark_all_unwatched">Mark all episodes as unwatched</string>
+    <string name="confirm_mark_all_unwatched">Clear the watched marks for all episodes in this series?</string>
+    <string name="status_marked_all_unwatched">Watched marks cleared for this series.</string>
+    <string name="mark_season_unwatched">Mark this season as unwatched</string>
+    <string name="confirm_mark_season_unwatched">Clear the watched marks for all episodes in the selected group?</string>
+    <string name="status_marked_season_unwatched">Watched marks cleared for the selected group.</string>
+    <string name="mark_specials_unwatched">Mark specials as unwatched</string>
 </resources>

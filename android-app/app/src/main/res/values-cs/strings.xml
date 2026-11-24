@@ -132,4 +132,11 @@
     <string name="confirm_mark_season_watched">Označit všechny načtené díly ve vybrané skupině jako zhlédnuté, včetně případných nadcházejících?</string>
     <string name="status_marked_season_watched">Všechny načtené díly ve vybrané skupině jsou označeny jako zhlédnuté.</string>
     <string name="mark_specials_watched">Označit speciály jako zhlédnuté</string>
+    <string name="mark_all_unwatched">Zrušit zhlédnutí všech epizod</string>
+    <string name="confirm_mark_all_unwatched">Zrušit označení zhlédnutých epizod v celém seriálu?</string>
+    <string name="status_marked_all_unwatched">Označení zhlédnutých epizod v seriálu bylo zrušeno.</string>
+    <string name="mark_season_unwatched">Zrušit zhlédnutí vybrané řady</string>
+    <string name="confirm_mark_season_unwatched">Zrušit označení zhlédnutých epizod ve vybrané skupině?</string>
+    <string name="status_marked_season_unwatched">Označení zhlédnutých epizod ve vybrané skupině bylo zrušeno.</string>
+    <string name="mark_specials_unwatched">Zrušit zhlédnutí speciálů</string>
 </resources>
